@@ -1,15 +1,15 @@
 type RegisterBody = {
-    domain: string;
+    domain_name: string;
     tld: string;
     github_repo: string;
     branch: string;
-    isPrivate: boolean;
-    private_secret: string;
+    isPrivate?: boolean;
+    private_secret?: string;
 };
 
 type UpdateBody = {
     id: string;
-    domain: string;
+    domain_name: string;
     github_repo: string;
     branch: string;
     isPrivate: boolean;

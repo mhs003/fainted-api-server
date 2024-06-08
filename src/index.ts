@@ -4,6 +4,7 @@ import { RegisterBody, UpdateBody } from "./Types";
 import RegisterValidator from "./Validators/RegisterValidator";
 import RegisterService from "./Services/RegisterService";
 import UpdateValidator from "./Validators/UpdateValidator";
+import "./database/setup";
 
 const app = new Elysia()
     .decorate({ RegisterService: new RegisterService() })

@@ -2,11 +2,11 @@ import { t } from "elysia";
 
 const RegisterValidator = {
     body: t.Object({
-        domain: t.String({
+        domain_name: t.String({
             minLength: 3,
             maxLength: 12,
             pattern:
-                "^(?!.*.\b)(?!.*[^a-zA-Z0-9_-])(?!.*[_-]$)(?!^[_-])(?!^d+$)(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$",
+                "^(?!.*\\..*)(?!.*[^a-zA-Z0-9_-])(?!.*[_-]$)(?!^[_-])(?!^\\d+$)(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$",
             error({ errors }) {
                 return {
                     error: true,
