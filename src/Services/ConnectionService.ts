@@ -31,10 +31,10 @@ export default class ConnectionService {
             if (res.status === 200) {
                 let resBody = await res.json();
                 if (!resBody) {
-                    throw new Error("error.validation|Invalid json data");
+                    throw new Error("error.validation|router.json contains invalid data");
                 }
                 if (resBody.routes === undefined) {
-                    throw new Error("error.validation|Invalid json data");
+                    throw new Error("error.validation|There are no `routes` property in router.json");
                 }
                 const generatedSecret = new Bun.CryptoHasher("md5")
                     .update(
@@ -65,7 +65,7 @@ export default class ConnectionService {
                 };
             } else {
                 throw new Error(
-                    "error.notfound|Invalid github repository url or router.json not found"
+                    "error.notfound|router.json file not found in the provided github repository"
                 );
             }
         } catch (err: any) {
