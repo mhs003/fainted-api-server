@@ -1,3 +1,7 @@
+if (typeof Bun === "undefined") {
+    throw new Error("This application only works with Bun runtime");
+}
+
 import { Elysia } from "elysia";
 import TLDS from "./tlds";
 import { RegisterBody, UpdateBody } from "./Types";
@@ -10,18 +14,23 @@ const app = new Elysia()
     .decorate({ RegisterService: new RegisterService() })
     .get("/", () => "Dude! You found me? Sigh...")
     .get("/available-tlds", () => TLDS)
-    .post(
-        "/register-service",
-        async ({
-            RegisterService,
-            body,
-        }: {
-            RegisterService: RegisterService;
-            body: RegisterBody;
-        }) => await RegisterService.create(body),
-        {
-            ...RegisterValidator,
-        }
+    .guard(RegisterValidator, (app) =>
+        app.post(
+            "/register-service",
+            async ({
+                RegisterService,
+                body,
+            }: {
+                RegisterService: RegisterService;
+                body: RegisterBody;
+            }) => await RegisterService.create(body) /* ,
+            {
+                error({ code, error }) {
+                    console.log("---");
+                    console.log({ code, error });
+                },
+            } */
+        )
     )
     .post(
         "/update-service",

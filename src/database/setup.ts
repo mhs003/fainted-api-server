@@ -1,7 +1,11 @@
 import mongoose from "mongoose";
 
-// Connect to the MongoDB database
-const mongoDBURI = process.env.MONGODB_URI ?? "mongodb://localhost:27017";
+try {
+    const mongoDBURI = process.env.MONGODB_URI ?? "mongodb://localhost:27017";
 
-mongoose.connect(mongoDBURI);
+    mongoose.connect(mongoDBURI);
+} catch (err) {
+    console.log("Database not connected");
+    throw new Error("Database not connected");
+}
 export default mongoose;

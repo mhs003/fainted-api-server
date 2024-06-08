@@ -1,14 +1,5 @@
 import { Document, Schema, model } from "mongoose";
-
-export interface IConnection extends Document {
-    domain_name: string;
-    tld: string;
-    github_repo: string;
-    branch: string;
-    router: object;
-    secret: string;
-    isPrivate: boolean;
-}
+import IConnection from "../interfaces/connection.interface";
 
 const schema = new Schema<IConnection>({
     domain_name: { type: String, required: true, unique: true },
