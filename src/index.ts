@@ -2,9 +2,13 @@ if (typeof Bun === "undefined") {
     throw new Error("This application only works with Bun runtime");
 }
 
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import TLDS from "./tlds";
-import { ConnectionRegisterBody, ConnectionUpdateBody } from "./Types";
+import {
+    ConnectionFindBody,
+    ConnectionRegisterBody,
+    ConnectionUpdateBody,
+} from "./Types";
 import ConnectionService from "./Services/ConnectionService";
 import "./database/setup";
 import {
@@ -29,7 +33,7 @@ const app = new Elysia()
         )
     )
     .guard(ConnectionUpdateValidator, (app) =>
-        app.post(
+        app.put(
             "/update-connection",
             async ({
                 ConnectionService,
@@ -39,6 +43,32 @@ const app = new Elysia()
                 body: ConnectionUpdateBody;
             }) => await ConnectionService.update(body)
         )
+    )
+    .guard(
+        {
+            body: t.Object({
+                secret: t.String({
+                    error({ errors }) {
+                        return {
+                            error: true,
+                            name: "error.validation",
+                            message: errors[0].message,
+                        };
+                    },
+                }),
+            }),
+        },
+        (app) =>
+            app.post(
+                "/find-connection",
+                async ({
+                    ConnectionService,
+                    body,
+                }: {
+                    ConnectionService: ConnectionService;
+                    body: ConnectionFindBody;
+                }) => await ConnectionService.find(body)
+            )
     )
     .get("/fetch", () => {}) // params: domain, tld, path+
     .get("/search", () => {})

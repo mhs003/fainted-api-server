@@ -19,7 +19,13 @@ const ConnectionRegisterValidator = {
                 };
             },
         }),
-        tld: t.String(),
+        tld: t.String({
+            error: {
+                error: true,
+                name: "error.validation",
+                message: "Invalid TLD",
+            },
+        }),
         github_repo: t.String({
             pattern: "^https?://github.com/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+/?$",
             error: {
@@ -37,8 +43,28 @@ const ConnectionRegisterValidator = {
                 message: "Invalid branch name",
             },
         }),
-        isPrivate: t.Optional(t.Boolean()),
-        private_secret: t.Optional(t.String()),
+        isPrivate: t.Optional(
+            t.Boolean({
+                error({ errors }) {
+                    return {
+                        error: true,
+                        name: "error.validation",
+                        message: errors[0].message,
+                    };
+                },
+            })
+        ),
+        private_secret: t.Optional(
+            t.String({
+                error({ errors }) {
+                    return {
+                        error: true,
+                        name: "error.validation",
+                        message: errors[0].message,
+                    };
+                },
+            })
+        ),
     }),
 };
 

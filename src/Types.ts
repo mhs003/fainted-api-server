@@ -12,9 +12,13 @@ type ConnectionUpdateBody = {
     domain_name: string;
     github_repo: string;
     branch: string;
-    isPrivate: boolean;
+    isPrivate?: boolean;
     secret: string;
-    private_secret: string;
+    private_secret?: string;
 };
 
-export { ConnectionRegisterBody, ConnectionUpdateBody };
+type ConnectionFindBody = {
+    secret: string;
+};
+
+export { ConnectionRegisterBody, ConnectionUpdateBody, ConnectionFindBody };
