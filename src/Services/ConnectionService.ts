@@ -19,8 +19,8 @@ export default class ConnectionService {
                 }
             }
 
-            // check if domain with tld exists in the database
-            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            // TODO: check if domain with tld exists in the database
+            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
             const ghuser = github_repo.split("/").slice(-2)[0];
             const ghrepo = github_repo.split("/").slice(-1)[0];
