@@ -1,8 +1,8 @@
-import { RegisterBody, UpdateBody } from "../Types";
+import { ConnectionRegisterBody, ConnectionUpdateBody } from "../Types";
 import Connection from "../entities/connection.schema";
 
-export default class RegisterService {
-    public async create(body: RegisterBody) {
+export default class ConnectionService {
+    public async create(body: ConnectionRegisterBody) {
         const {
             domain_name,
             tld,
@@ -18,6 +18,9 @@ export default class RegisterService {
                     throw new Error("error.validation|Invalid private secret");
                 }
             }
+
+            // check if domain with tld exists in the database
+            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
             const ghuser = github_repo.split("/").slice(-2)[0];
             const ghrepo = github_repo.split("/").slice(-1)[0];
@@ -52,12 +55,12 @@ export default class RegisterService {
                 return {
                     error: false,
                     name: "success",
-                    message: "Service registered successfully",
+                    message: "Connection registered successfully",
                     data: {
                         domain_name,
                         tld,
                         secret: generatedSecret,
-                        isPrivate: isPrivate ?? false,
+                        isPrivate,
                     },
                 };
             } else {
@@ -66,13 +69,13 @@ export default class RegisterService {
                 );
             }
         } catch (err: any) {
-            if (err.name === "MongoServerError" && err.code === 11000) {
+            /* if (err.name === "MongoServerError" && err.code === 11000) {
                 return {
                     error: true,
                     name: "error.duplicate",
                     message: "Domain name already exists",
                 };
-            }
+            } */
             if (err.message.startsWith("error.")) {
                 return {
                     error: true,
@@ -89,7 +92,7 @@ export default class RegisterService {
         }
     }
 
-    public async update(body: UpdateBody) {
+    public async update(body: ConnectionUpdateBody) {
         return {};
     }
 }

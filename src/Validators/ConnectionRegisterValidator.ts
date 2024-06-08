@@ -1,6 +1,6 @@
 import { t } from "elysia";
 
-const RegisterValidator = {
+const ConnectionRegisterValidator = {
     body: t.Object({
         domain_name: t.String({
             minLength: 3,
@@ -42,4 +42,4 @@ const RegisterValidator = {
     }),
 };
 
-export default RegisterValidator;
+export default ConnectionRegisterValidator;

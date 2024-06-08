@@ -4,48 +4,43 @@ if (typeof Bun === "undefined") {
 
 import { Elysia } from "elysia";
 import TLDS from "./tlds";
-import { RegisterBody, UpdateBody } from "./Types";
-import RegisterValidator from "./Validators/RegisterValidator";
-import RegisterService from "./Services/RegisterService";
-import UpdateValidator from "./Validators/UpdateValidator";
+import { ConnectionRegisterBody, ConnectionUpdateBody } from "./Types";
+import ConnectionService from "./Services/ConnectionService";
 import "./database/setup";
+import {
+    ConnectionRegisterValidator,
+    ConnectionUpdateValidator,
+} from "./Validators";
 
 const app = new Elysia()
-    .decorate({ RegisterService: new RegisterService() })
+    .decorate({ ConnectionService: new ConnectionService() })
     .get("/", () => "Dude! You found me? Sigh...")
     .get("/available-tlds", () => TLDS)
-    .guard(RegisterValidator, (app) =>
+    .guard(ConnectionRegisterValidator, (app) =>
         app.post(
-            "/register-service",
+            "/register-connection",
             async ({
-                RegisterService,
+                ConnectionService,
                 body,
             }: {
-                RegisterService: RegisterService;
-                body: RegisterBody;
-            }) => await RegisterService.create(body) /* ,
-            {
-                error({ code, error }) {
-                    console.log("---");
-                    console.log({ code, error });
-                },
-            } */
+                ConnectionService: ConnectionService;
+                body: ConnectionRegisterBody;
+            }) => await ConnectionService.create(body)
         )
     )
-    .post(
-        "/update-service",
-        async ({
-            RegisterService,
-            body,
-        }: {
-            RegisterService: RegisterService;
-            body: UpdateBody;
-        }) => await RegisterService.update(body),
-        {
-            ...UpdateValidator,
-        }
+    .guard(ConnectionUpdateValidator, (app) =>
+        app.post(
+            "/update-connection",
+            async ({
+                ConnectionService,
+                body,
+            }: {
+                ConnectionService: ConnectionService;
+                body: ConnectionUpdateBody;
+            }) => await ConnectionService.update(body)
+        )
     )
-    .get("/serve/{domain}/{tld}", () => {})
+    .get("/fetch", () => {}) // params: domain, tld, path+
     .get("/search", () => {})
     .listen(3000);
 

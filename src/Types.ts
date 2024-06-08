@@ -1,4 +1,4 @@
-type RegisterBody = {
+type ConnectionRegisterBody = {
     domain_name: string;
     tld: string;
     github_repo: string;
@@ -7,7 +7,7 @@ type RegisterBody = {
     private_secret?: string;
 };
 
-type UpdateBody = {
+type ConnectionUpdateBody = {
     id: string;
     domain_name: string;
     github_repo: string;
@@ -17,4 +17,4 @@ type UpdateBody = {
     private_secret: string;
 };
 
-export { RegisterBody, UpdateBody };
+export { ConnectionRegisterBody, ConnectionUpdateBody };
