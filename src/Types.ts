@@ -21,4 +21,16 @@ type ConnectionFindBody = {
     secret: string;
 };
 
-export { ConnectionRegisterBody, ConnectionUpdateBody, ConnectionFindBody };
+type ServeQuery = {
+    domain_name: string;
+    tld: string;
+    path: string;
+    router_group: string;
+};
+
+export {
+    ConnectionRegisterBody,
+    ConnectionUpdateBody,
+    ConnectionFindBody,
+    ServeQuery,
+};

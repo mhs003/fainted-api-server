@@ -4,20 +4,25 @@ if (typeof Bun === "undefined") {
 
 import { Elysia, t } from "elysia";
 import TLDS from "./tlds";
+import "./database/setup";
 import {
     ConnectionFindBody,
     ConnectionRegisterBody,
     ConnectionUpdateBody,
+    ServeQuery,
 } from "./Types";
-import ConnectionService from "./Services/ConnectionService";
-import "./database/setup";
+import { ConnectionService, ServeService } from "./Services";
 import {
     ConnectionRegisterValidator,
     ConnectionUpdateValidator,
+    ServeQueryValidator,
 } from "./Validators";
 
 const app = new Elysia()
-    .decorate({ ConnectionService: new ConnectionService() })
+    .decorate({
+        ConnectionService: new ConnectionService(),
+        ServeService: new ServeService(),
+    })
     .get("/", () => "Dude! You found me? Sigh...")
     .get("/available-tlds", () => TLDS)
     .guard(ConnectionRegisterValidator, (app) =>
@@ -26,10 +31,12 @@ const app = new Elysia()
             async ({
                 ConnectionService,
                 body,
+                error,
             }: {
                 ConnectionService: ConnectionService;
                 body: ConnectionRegisterBody;
-            }) => await ConnectionService.create(body)
+                error: any;
+            }) => await ConnectionService.create(body, error)
         )
     )
     .guard(ConnectionUpdateValidator, (app) =>
@@ -38,10 +45,12 @@ const app = new Elysia()
             async ({
                 ConnectionService,
                 body,
+                error,
             }: {
                 ConnectionService: ConnectionService;
                 body: ConnectionUpdateBody;
-            }) => await ConnectionService.update(body)
+                error: any;
+            }) => await ConnectionService.update(body, error)
         )
     )
     .guard(
@@ -64,13 +73,28 @@ const app = new Elysia()
                 async ({
                     ConnectionService,
                     body,
+                    error,
                 }: {
                     ConnectionService: ConnectionService;
                     body: ConnectionFindBody;
-                }) => await ConnectionService.find(body)
+                    error: any;
+                }) => await ConnectionService.find(body, error)
             )
     )
-    .get("/fetch", () => {}) // params: domain, tld, path+
+    .guard(ServeQueryValidator, (app) =>
+        app.get(
+            "/serve",
+            async ({
+                ServeService,
+                query,
+                error,
+            }: {
+                ServeService: ServeService;
+                query: ServeQuery;
+                error: any;
+            }) => await ServeService.serve(query, error)
+        )
+    )
     .get("/search", () => {})
     .listen(3000);
 
