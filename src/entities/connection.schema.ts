@@ -1,4 +1,4 @@
-import { Document, Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import IConnection from "../interfaces/connection.interface";
 
 const schema = new Schema<IConnection>({

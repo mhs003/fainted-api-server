@@ -1,4 +1,5 @@
 import ConnectionService from "./ConnectionService";
 import ServeService from "./ServeService";
+import SearchEngineService from "./SearchEngineService";
 
-export { ConnectionService, ServeService };
+export { ConnectionService, ServeService, SearchEngineService };

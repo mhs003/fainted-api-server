@@ -12,7 +12,11 @@ import {
     RouterRecacheBody,
     ServeQuery,
 } from "./Types";
-import { ConnectionService, ServeService } from "./Services";
+import {
+    ConnectionService,
+    SearchEngineService,
+    ServeService,
+} from "./Services";
 import {
     ConnectionRegisterValidator,
     ConnectionUpdateValidator,
@@ -24,6 +28,7 @@ const app = new Elysia()
     .decorate({
         ConnectionService: new ConnectionService(),
         ServeService: new ServeService(),
+        SearchEngineService: new SearchEngineService(),
     })
     .get("/", () => "Dude! You found me? Sigh...")
     .get("/available-tlds", () => TLDS)
@@ -112,6 +117,34 @@ const app = new Elysia()
                 error: any;
             }) => await ServeService.serve(set, query, error)
         )
+    )
+    .guard(
+        {
+            body: t.Object({
+                private_secret: t.String({
+                    error({ errors }) {
+                        return {
+                            error: true,
+                            name: "error.validation",
+                            message: errors[0].message,
+                        };
+                    },
+                }),
+            }),
+        },
+        (app) =>
+            app.post(
+                "/store-seo-data",
+                async ({
+                    SearchEngineService,
+                    body,
+                    error,
+                }: {
+                    SearchEngineService: SearchEngineService;
+                    body: { private_secret: string };
+                    error: any;
+                }) => await SearchEngineService.store_seo(body, error)
+            )
     )
     .get("/search", () => {})
     .listen(3000);
