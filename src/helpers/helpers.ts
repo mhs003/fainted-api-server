@@ -1,5 +1,10 @@
 import TLDS from "../tlds";
 
+export enum FetchType {
+    RAW,
+    JSON,
+}
+
 export default class Helpers {
     public static async sleep(ms: number) {
         return new Promise((resolve) => {
@@ -33,6 +38,31 @@ export default class Helpers {
     ) {
         path = !path.startsWith("/") ? path : path.slice(1);
         return `https://raw.githubusercontent.com/${ghuser}/${ghrepo}/${branch}/${path}`;
+    }
+
+    public static async fetch(url: string, type: FetchType) {
+        const res = await fetch(url);
+        if (res.status === 200) {
+            if (type === FetchType.JSON) {
+                let resBody = await res.json();
+                if (resBody) {
+                    return resBody;
+                } else {
+                    throw new Error("error.validation|Invalid JSON data");
+                }
+            } else if (type === FetchType.RAW) {
+                let resBody = await res.text();
+                if (resBody) {
+                    return resBody;
+                } else {
+                    throw new Error("error.validation|Invalid text data");
+                }
+            } else {
+                throw new Error("error.validation|Invalid fetch type");
+            }
+        } else {
+            throw new Error("error.notfound|Resource not found." + url);
+        }
     }
 
     public static checkValidTld(tld: string, isPrivate: boolean) {

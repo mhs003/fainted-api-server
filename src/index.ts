@@ -17,6 +17,7 @@ import {
     ConnectionUpdateValidator,
     ServeQueryValidator,
 } from "./Validators";
+import ContentTypes from "./ContentTypes";
 
 const app = new Elysia()
     .decorate({
@@ -85,16 +86,28 @@ const app = new Elysia()
         app.get(
             "/serve",
             async ({
+                set,
                 ServeService,
                 query,
                 error,
             }: {
+                set: { headers: Record<string, string> };
                 ServeService: ServeService;
                 query: ServeQuery;
                 error: any;
-            }) => await ServeService.serve(query, error)
+            }) => await ServeService.serve(set, query, error)
         )
     )
+    // .get(
+    //     "/test-ct",
+    //     ({ set }: { set: { headers: Record<string, string> } }) => {
+    //         const type = ContentTypes.all().get("css");
+    //         set.headers = {
+    //             "content-type": type,
+    //         };
+    //         return { test: "<b>Hello, World!</b>", type };
+    //     }
+    // )
     .get("/search", () => {})
     .listen(3000);
 

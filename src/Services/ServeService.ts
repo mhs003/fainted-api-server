@@ -1,9 +1,15 @@
+import ContentTypes from "../ContentTypes";
 import { ServeQuery } from "../Types";
 import Connection from "../entities/connection.schema";
-import Helpers from "../helpers/helpers";
+import Helpers, { FetchType } from "../helpers/helpers";
+import pathHelper from "path";
 
 export default class ServeService {
-    public async serve(query: ServeQuery, error: any) {
+    public async serve(
+        set: { headers: Record<string, string> },
+        query: ServeQuery,
+        error: any
+    ) {
         try {
             const { domain_name, tld, path, router_group } = query;
             const connection = await Connection.findOne({
@@ -17,27 +23,38 @@ export default class ServeService {
             const { github_repo, branch } = connection;
             const { ghuser, ghrepo } = Helpers.extractGhUri(github_repo);
 
-            // TODO: Complete these implementations >>
-            if (router_group === "routes") {
-                if (router.routes[path]) {
-                }
-            } else if (router_group === "css") {
-            } else if (router_group === "js") {
-            } else if (router_group === "images") {
-            } else if (router_group === "fonts") {
-            } else {
+            let currentRoutePath = "";
+            const currentAllowedGroups = [
+                "routes",
+                "css",
+                "js",
+                "images",
+                "fonts",
+            ];
+            if (!currentAllowedGroups.includes(router_group)) {
+                throw new Error("error.wronggroup|Invalid router group");
             }
-            // <<
-
-            const uri = Helpers.getGhRawFile(ghuser, ghrepo, branch, path);
-            return {
-                error: false,
-                name: "success",
-                message: "Serving file",
-                data: {
-                    uri,
-                },
-            };
+            currentRoutePath = router[router_group][path];
+            if (
+                currentRoutePath !== undefined &&
+                currentRoutePath !== null &&
+                currentRoutePath !== ""
+            ) {
+                const extension = pathHelper.extname(currentRoutePath).slice(1);
+                const uri = Helpers.getGhRawFile(
+                    ghuser,
+                    ghrepo,
+                    branch,
+                    currentRoutePath
+                );
+                const res = await Helpers.fetch(uri, FetchType.RAW);
+                set.headers = {
+                    "content-type": ContentTypes.all().get(extension),
+                };
+                return res;
+            } else {
+                throw new Error("error.notfound|Resource not found!!");
+            }
         } catch (err: any) {
             return Helpers.makeErrorResponse(error, { message: err.message });
         }
