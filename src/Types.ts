@@ -34,10 +34,17 @@ type ServeQuery = {
     router_group: string;
 };
 
+type RouterType = {
+    [key: string]: {
+        [key: string]: string;
+    };
+};
+
 export {
     ConnectionRegisterBody,
     ConnectionUpdateBody,
     ConnectionFindBody,
     ServeQuery,
     RouterRecacheBody,
+    RouterType,
 };

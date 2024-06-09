@@ -84,7 +84,7 @@ export default class ConnectionService {
                 }
             );
 
-            if (routerRes.error) {
+            if (typeof routerRes !== "function") {
                 throw new Error(routerRes.msg);
             } else {
                 return routerRes;
@@ -166,7 +166,7 @@ export default class ConnectionService {
                 }
             );
 
-            if (routerRes.error) {
+            if (typeof routerRes !== "function") {
                 throw new Error(routerRes.msg);
             } else {
                 return routerRes;
@@ -265,7 +265,7 @@ export default class ConnectionService {
                     }
                 }
             );
-            if (routerRes.error) {
+            if (typeof routerRes !== "function") {
                 throw new Error(routerRes.msg);
             } else {
                 return routerRes;

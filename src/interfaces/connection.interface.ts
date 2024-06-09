@@ -1,3 +1,5 @@
+import { RouterType } from "../Types";
+
 export default interface IConnection extends Document {
     domain_name: string;
     tld: string;
@@ -7,9 +9,3 @@ export default interface IConnection extends Document {
     secret: string;
     isPrivate: boolean;
 }
-
-export type RouterType = {
-    [key: string]: {
-        [key: string]: string;
-    };
-};

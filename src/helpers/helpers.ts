@@ -1,3 +1,4 @@
+import { RouterType } from "../Types";
 import TLDS from "../tlds";
 
 export enum FetchType {
@@ -6,23 +7,28 @@ export enum FetchType {
 }
 
 export default class Helpers {
-    public static SiteUrl(defaultUrl: string = "http://localhost:4000") {
+    public static SiteUrl(
+        defaultUrl: string = "http://localhost:4000"
+    ): string {
         return process.env.SITE_URL ? process.env.SITE_URL : defaultUrl;
     }
 
-    public static async sleep(ms: number) {
+    public static async sleep(ms: number): Promise<void> {
         return new Promise((resolve) => {
             setTimeout(resolve, ms);
         });
     }
 
-    public static extractGhUri(github_repo: string) {
+    public static extractGhUri(github_repo: string): {
+        ghuser: string;
+        ghrepo: string;
+    } {
         const ghuser = github_repo.split("/").slice(-2)[0];
         const ghrepo = github_repo.split("/").slice(-1)[0];
         return { ghuser, ghrepo };
     }
 
-    public static getGhRepoUri(ghuser: string, ghrepo: string) {
+    public static getGhRepoUri(ghuser: string, ghrepo: string): string {
         return `https://github.com/${ghuser}/${ghrepo}`;
     }
 
@@ -30,7 +36,7 @@ export default class Helpers {
         ghuser: string,
         ghrepo: string,
         branch: string
-    ) {
+    ): string {
         return Helpers.getGhRawFile(ghuser, ghrepo, branch, "router.json");
     }
 
@@ -39,7 +45,7 @@ export default class Helpers {
         ghrepo: string,
         branch: string,
         path: string
-    ) {
+    ): string {
         path = !path.startsWith("/") ? path : path.slice(1);
         return `https://raw.githubusercontent.com/${ghuser}/${ghrepo}/${branch}/${path}`;
     }
@@ -48,7 +54,7 @@ export default class Helpers {
         url: string,
         type: FetchType,
         serverBaseUrl: string
-    ) {
+    ): Promise<string | void | RouterType> {
         const res = await fetch(url);
         if (res.status === 200) {
             if (type === FetchType.JSON) {
@@ -73,7 +79,7 @@ export default class Helpers {
         }
     }
 
-    public static replaceGroup(data: string, baseUrl: string) {
+    public static replaceGroup(data: string, baseUrl: string): string {
         var pattern = /@\{\s*(.*?)\s*\|\s*(.*?)\s*\}@/g;
 
         return data.replace(pattern, (match, group, path) => {
@@ -83,7 +89,7 @@ export default class Helpers {
         });
     }
 
-    public static checkValidTld(tld: string, isPrivate: boolean) {
+    public static checkValidTld(tld: string, isPrivate: boolean): boolean {
         if (isPrivate) {
             return TLDS.private.includes(tld) || TLDS.public.includes(tld);
         } else {
@@ -91,7 +97,10 @@ export default class Helpers {
         }
     }
 
-    public static makeErrorResponse(error: any, errBody: { message: string }) {
+    public static makeErrorResponse(
+        error: any,
+        errBody: { message: string }
+    ): any {
         const errSerials: Record<string, number> = {
             "error.validation": 400,
             "error.duplicate": 409,
@@ -122,7 +131,7 @@ export default class Helpers {
     public static async softValidateRouter(
         ghRawRouterUri: string,
         callback: Function
-    ) {
+    ): Promise<{ error: boolean; msg: string } | Function> {
         const res = await fetch(ghRawRouterUri);
 
         if (res.status === 200) {
