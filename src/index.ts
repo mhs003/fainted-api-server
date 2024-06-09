@@ -83,6 +83,20 @@ const app = new Elysia()
                 }) => await ConnectionService.find(body, error)
             )
     )
+    .guard(RouterReloadValidator, (app) =>
+        app.put(
+            "/recache-routes",
+            async ({
+                ConnectionService,
+                body,
+                error,
+            }: {
+                ConnectionService: ConnectionService;
+                body: RouterRecacheBody;
+                error: any;
+            }) => await ConnectionService.recacheRoutes(body, error)
+        )
+    )
     .guard(ServeQueryValidator, (app) =>
         app.get(
             "/serve",
@@ -97,20 +111,6 @@ const app = new Elysia()
                 query: ServeQuery;
                 error: any;
             }) => await ServeService.serve(set, query, error)
-        )
-    )
-    .guard(RouterReloadValidator, (app) =>
-        app.put(
-            "/recache-routes",
-            async ({
-                ConnectionService,
-                body,
-                error,
-            }: {
-                ConnectionService: ConnectionService;
-                body: RouterRecacheBody;
-                error: any;
-            }) => await ConnectionService.recacheRoutes(body, error)
         )
     )
     .get("/search", () => {})
