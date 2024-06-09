@@ -100,7 +100,7 @@ const app = new Elysia()
         )
     )
     .guard(RouterReloadValidator, (app) =>
-        app.post(
+        app.put(
             "/recache-routes",
             async ({
                 ConnectionService,

@@ -92,44 +92,24 @@ export default class Helpers {
     }
 
     public static makeErrorResponse(error: any, errBody: { message: string }) {
+        const errSerials: Record<string, number> = {
+            "error.validation": 400,
+            "error.duplicate": 409,
+            "error.notfound": 404,
+            "error.noconnection": 404,
+            "error.wronggroup": 404,
+            "error.wrongresponse": 500,
+            "error.nochanges": 204,
+            "error.unidentified": 500,
+        };
         if (errBody.message.startsWith("error.")) {
             const err_name = errBody.message.split("|")[0];
             const err_message = errBody.message.split("|")[1];
-            if (err_name === "error.validation") {
-                return error(400, {
-                    error: true,
-                    name: err_name,
-                    message: err_message,
-                });
-            } else if (err_name === "error.duplicate") {
-                return error(409, {
-                    error: true,
-                    name: err_name,
-                    message: err_message,
-                });
-            } else if (
-                err_name === "error.notfound" ||
-                err_name === "error.noconnection" ||
-                err_name === "error.wronggroup"
-            ) {
-                return error(404, {
-                    error: true,
-                    name: err_name,
-                    message: err_message,
-                });
-            } else if (err_name === "error.wrongresponse") {
-                return error(500, {
-                    error: true,
-                    name: err_name,
-                    message: err_message,
-                });
-            } else {
-                return error(500, {
-                    error: true,
-                    name: err_name,
-                    message: err_message,
-                });
-            }
+            return error(errSerials[err_name] ?? 500, {
+                error: true,
+                name: err_name,
+                message: err_message,
+            });
         } else {
             return error(500, {
                 error: true,

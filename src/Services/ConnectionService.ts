@@ -216,7 +216,7 @@ export default class ConnectionService {
 
             const existingConnection = await Connection.findOne({
                 secret,
-                isPrivate,
+                isPrivate: isPrivate ?? false,
             });
             if (!existingConnection) {
                 throw new Error(
@@ -232,6 +232,44 @@ export default class ConnectionService {
                 ghrepo,
                 existingConnection.branch
             );
+
+            const routerRes = await Helpers.softValidateRouter(
+                ghrawrouter,
+                async (resBody: any) => {
+                    const jsonOfOldData = JSON.stringify(
+                        existingConnection.router
+                    );
+                    const jsonOfNewData = JSON.stringify(resBody);
+                    if (jsonOfOldData === jsonOfNewData) {
+                        throw new Error(
+                            "error.nochanges|No changes in the router"
+                        );
+                    } else {
+                        existingConnection.router = resBody;
+                        if (!(await existingConnection.save())) {
+                            throw new Error(
+                                "error.store|Failed to save connection"
+                            );
+                        }
+                        return {
+                            error: false,
+                            name: "success",
+                            message: "Routes recached successfully",
+                            data: {
+                                domain_name: existingConnection.domain_name,
+                                tld: existingConnection.tld,
+                                router: resBody,
+                                isPrivate,
+                            },
+                        };
+                    }
+                }
+            );
+            if (routerRes.error) {
+                throw new Error(routerRes.msg);
+            } else {
+                return routerRes;
+            }
         } catch (err: any) {
             return Helpers.makeErrorResponse(error, { message: err.message });
         }

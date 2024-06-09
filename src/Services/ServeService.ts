@@ -50,7 +50,6 @@ export default class ServeService {
                 );
                 const serverBaseUrl =
                     rtrim(Helpers.SiteUrl(), "/") +
-                    // Helpers.SiteUrl() +
                     `/serve?domain_name=${domain_name}&tld=${tld}&router_group={group}&path={path}`;
 
                 const res = await Helpers.fetch(
