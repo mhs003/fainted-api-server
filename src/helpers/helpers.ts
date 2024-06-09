@@ -6,6 +6,10 @@ export enum FetchType {
 }
 
 export default class Helpers {
+    public static SiteUrl(defaultUrl: string = "http://localhost:4000") {
+        return process.env.SITE_URL ? process.env.SITE_URL : defaultUrl;
+    }
+
     public static async sleep(ms: number) {
         return new Promise((resolve) => {
             setTimeout(resolve, ms);
@@ -40,7 +44,11 @@ export default class Helpers {
         return `https://raw.githubusercontent.com/${ghuser}/${ghrepo}/${branch}/${path}`;
     }
 
-    public static async fetch(url: string, type: FetchType) {
+    public static async fetch(
+        url: string,
+        type: FetchType,
+        serverBaseUrl: string
+    ) {
         const res = await fetch(url);
         if (res.status === 200) {
             if (type === FetchType.JSON) {
@@ -48,21 +56,31 @@ export default class Helpers {
                 if (resBody) {
                     return resBody;
                 } else {
-                    throw new Error("error.validation|Invalid JSON data");
+                    throw new Error("error.wrongresponse|Invalid JSON data");
                 }
             } else if (type === FetchType.RAW) {
                 let resBody = await res.text();
                 if (resBody) {
-                    return resBody;
+                    return Helpers.replaceGroup(resBody, serverBaseUrl);
                 } else {
-                    throw new Error("error.validation|Invalid text data");
+                    throw new Error("error.wrongresponse|Invalid text data");
                 }
             } else {
                 throw new Error("error.validation|Invalid fetch type");
             }
         } else {
-            throw new Error("error.notfound|Resource not found." + url);
+            throw new Error("error.notfound|Resource not found");
         }
+    }
+
+    public static replaceGroup(data: string, baseUrl: string) {
+        var pattern = /@\{\s*(.*?)\s*\|\s*(.*?)\s*\}@/g;
+
+        return data.replace(pattern, (match, group, path) => {
+            return baseUrl
+                .replace("{group}", group)
+                .replace("{path}", encodeURIComponent(path));
+        });
     }
 
     public static checkValidTld(tld: string, isPrivate: boolean) {
@@ -89,14 +107,18 @@ export default class Helpers {
                     name: err_name,
                     message: err_message,
                 });
-            } else if (err_name === "error.notfound") {
+            } else if (
+                err_name === "error.notfound" ||
+                err_name === "error.noconnection" ||
+                err_name === "error.wronggroup"
+            ) {
                 return error(404, {
                     error: true,
                     name: err_name,
                     message: err_message,
                 });
-            } else if (err_name === "error.noconnection") {
-                return error(404, {
+            } else if (err_name === "error.wrongresponse") {
+                return error(500, {
                     error: true,
                     name: err_name,
                     message: err_message,

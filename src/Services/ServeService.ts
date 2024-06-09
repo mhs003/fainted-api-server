@@ -1,6 +1,7 @@
 import ContentTypes from "../ContentTypes";
 import { ServeQuery } from "../Types";
 import Connection from "../entities/connection.schema";
+import { rtrim } from "../helpers/functions";
 import Helpers, { FetchType } from "../helpers/helpers";
 import pathHelper from "path";
 
@@ -24,14 +25,14 @@ export default class ServeService {
             const { ghuser, ghrepo } = Helpers.extractGhUri(github_repo);
 
             let currentRoutePath = "";
-            const currentAllowedGroups = [
+            const currentAllowedRouteGroups = [
                 "routes",
                 "css",
                 "js",
                 "images",
                 "fonts",
             ];
-            if (!currentAllowedGroups.includes(router_group)) {
+            if (!currentAllowedRouteGroups.includes(router_group)) {
                 throw new Error("error.wronggroup|Invalid router group");
             }
             currentRoutePath = router[router_group][path];
@@ -47,13 +48,22 @@ export default class ServeService {
                     branch,
                     currentRoutePath
                 );
-                const res = await Helpers.fetch(uri, FetchType.RAW);
+                const serverBaseUrl =
+                    rtrim(Helpers.SiteUrl(), "/") +
+                    // Helpers.SiteUrl() +
+                    `/serve?domain_name=${domain_name}&tld=${tld}&router_group={group}&path={path}`;
+
+                const res = await Helpers.fetch(
+                    uri,
+                    FetchType.RAW,
+                    serverBaseUrl
+                );
                 set.headers = {
                     "content-type": ContentTypes.all().get(extension),
                 };
                 return res;
             } else {
-                throw new Error("error.notfound|Resource not found!!");
+                throw new Error("error.notfound|Route not found!!");
             }
         } catch (err: any) {
             return Helpers.makeErrorResponse(error, { message: err.message });

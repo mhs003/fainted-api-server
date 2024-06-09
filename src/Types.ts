@@ -21,6 +21,12 @@ type ConnectionFindBody = {
     secret: string;
 };
 
+type RouterRecacheBody = {
+    isPrivate: string;
+    secret: string;
+    private_secret: string;
+};
+
 type ServeQuery = {
     domain_name: string;
     tld: string;
@@ -33,4 +39,5 @@ export {
     ConnectionUpdateBody,
     ConnectionFindBody,
     ServeQuery,
+    RouterRecacheBody,
 };

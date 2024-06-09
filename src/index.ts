@@ -9,15 +9,16 @@ import {
     ConnectionFindBody,
     ConnectionRegisterBody,
     ConnectionUpdateBody,
+    RouterRecacheBody,
     ServeQuery,
 } from "./Types";
 import { ConnectionService, ServeService } from "./Services";
 import {
     ConnectionRegisterValidator,
     ConnectionUpdateValidator,
+    RouterReloadValidator,
     ServeQueryValidator,
 } from "./Validators";
-import ContentTypes from "./ContentTypes";
 
 const app = new Elysia()
     .decorate({
@@ -98,16 +99,20 @@ const app = new Elysia()
             }) => await ServeService.serve(set, query, error)
         )
     )
-    // .get(
-    //     "/test-ct",
-    //     ({ set }: { set: { headers: Record<string, string> } }) => {
-    //         const type = ContentTypes.all().get("css");
-    //         set.headers = {
-    //             "content-type": type,
-    //         };
-    //         return { test: "<b>Hello, World!</b>", type };
-    //     }
-    // )
+    .guard(RouterReloadValidator, (app) =>
+        app.post(
+            "/recache-routes",
+            async ({
+                ConnectionService,
+                body,
+                error,
+            }: {
+                ConnectionService: ConnectionService;
+                body: RouterRecacheBody;
+                error: any;
+            }) => await ConnectionService.recacheRoutes(body, error)
+        )
+    )
     .get("/search", () => {})
     .listen(3000);
 

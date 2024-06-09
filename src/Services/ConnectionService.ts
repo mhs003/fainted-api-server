@@ -2,6 +2,7 @@ import {
     ConnectionFindBody,
     ConnectionRegisterBody,
     ConnectionUpdateBody,
+    RouterRecacheBody,
 } from "../Types";
 import Connection from "../entities/connection.schema";
 import Helpers from "../helpers/helpers";
@@ -199,6 +200,38 @@ export default class ConnectionService {
                     router: existingConnection.router,
                 },
             };
+        } catch (err: any) {
+            return Helpers.makeErrorResponse(error, { message: err.message });
+        }
+    }
+
+    public async recacheRoutes(body: RouterRecacheBody, error: any) {
+        const { isPrivate, secret, private_secret } = body;
+        try {
+            if (private_secret && isPrivate) {
+                if (private_secret !== process.env.PRIVATE_SECRET) {
+                    throw new Error("error.validation|Invalid private secret");
+                }
+            }
+
+            const existingConnection = await Connection.findOne({
+                secret,
+                isPrivate,
+            });
+            if (!existingConnection) {
+                throw new Error(
+                    "error.notfound|There are no connection with the secret"
+                );
+            }
+            const { ghuser, ghrepo } = Helpers.extractGhUri(
+                existingConnection.github_repo
+            );
+
+            const ghrawrouter = Helpers.getGhRawRouterUri(
+                ghuser,
+                ghrepo,
+                existingConnection.branch
+            );
         } catch (err: any) {
             return Helpers.makeErrorResponse(error, { message: err.message });
         }
