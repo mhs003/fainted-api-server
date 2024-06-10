@@ -84,7 +84,7 @@ export default class ConnectionService {
                 }
             );
 
-            if (typeof routerRes !== "function") {
+            if (typeof routerRes === "object" && routerRes.error) {
                 throw new Error(routerRes.msg);
             } else {
                 return routerRes;
@@ -166,7 +166,7 @@ export default class ConnectionService {
                 }
             );
 
-            if (typeof routerRes !== "function") {
+            if (typeof routerRes === "object" && routerRes.error) {
                 throw new Error(routerRes.msg);
             } else {
                 return routerRes;
@@ -259,13 +259,13 @@ export default class ConnectionService {
                                 domain_name: existingConnection.domain_name,
                                 tld: existingConnection.tld,
                                 router: resBody,
-                                isPrivate,
+                                isPrivate: isPrivate ?? false,
                             },
                         };
                     }
                 }
             );
-            if (typeof routerRes !== "function") {
+            if (typeof routerRes === "object" && routerRes.error) {
                 throw new Error(routerRes.msg);
             } else {
                 return routerRes;

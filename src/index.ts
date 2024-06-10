@@ -150,5 +150,5 @@ const app = new Elysia()
     .listen(3000);
 
 console.log(
-    `Fainted API Server is running at http://${app.server?.hostname}:${app.server?.port}`
+    `Fainted API Server is running on http://${app.server?.hostname}:${app.server?.port}`
 );

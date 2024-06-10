@@ -79,6 +79,63 @@ export default class Helpers {
         }
     }
 
+    public static async fetchSeoData(url: string, baseUrl: string) {
+        const seoData = new Map<string, string | Object>();
+        try {
+            const res = await Helpers.fetch(url, FetchType.RAW, baseUrl);
+            if (typeof res === "string") {
+                // Extract title
+                let titleRg = res.match(/<title>(.*?)<\/title>/);
+                if (titleRg) {
+                    seoData.set("title", titleRg[1]);
+                }
+                // Extract meta description
+                let metaDescriptionRg = res.match(
+                    /<meta name="description" content="(.*?)">/
+                );
+                if (metaDescriptionRg) {
+                    seoData.set("meta_description", metaDescriptionRg[1]);
+                }
+                // Extract meta keywords
+                let metaKeywordsRg = res.match(
+                    /<meta name="keywords" content="(.*?)">/
+                );
+                if (metaKeywordsRg) {
+                    seoData.set("meta_keywords", metaKeywordsRg[1]);
+                }
+                // Extract meta author
+                let metaAuthorRg = res.match(
+                    /<meta name="author" content="(.*?)">/
+                );
+                if (metaAuthorRg) {
+                    seoData.set("meta_author", metaAuthorRg[1]);
+                }
+                // Extract meta robots
+                let metaRobotsRg = res.match(
+                    /<meta name="robots" content="(.*?)">/
+                );
+                if (metaRobotsRg) {
+                    seoData.set("meta_robots", metaRobotsRg[1]);
+                }
+                // Extract all heading tags
+                let headingsRg = res.match(/<h[1-6]>(.*?)<\/h[1-6]>/g);
+                if (headingsRg) {
+                    seoData.set("headings", headingsRg);
+                }
+            } else {
+                seoData.set("title", "404 not found");
+            }
+            return seoData;
+        } catch (err: any) {
+            if (err.message.startsWith("error.notfound")) {
+                seoData.set("title", "404 not found");
+                return seoData;
+            } else {
+                throw new Error(err.message);
+            }
+        }
+    }
+
     public static replaceGroup(data: string, baseUrl: string): string {
         var pattern = /@\{\s*(.*?)\s*\|\s*(.*?)\s*\}@/g;
 
@@ -162,7 +219,6 @@ export default class Helpers {
                     msg: "error.validation|There is no `/` route in router.json",
                 };
             }
-
             return await callback(resBody);
         } else {
             return {

@@ -1,4 +1,6 @@
 import Connection from "../entities/connection.schema";
+import SEO from "../entities/seo.schema";
+import { rtrim } from "../helpers/functions";
 import Helpers from "../helpers/helpers";
 
 export default class SearchEngineService {
@@ -12,34 +14,55 @@ export default class SearchEngineService {
                 "domain_name tld router.routes github_repo branch -_id"
             );
 
-            allConnections.forEach((element) => {
-                const domain = `${element.domain_name}.${element.tld}`;
+            let round = 0;
+            await SEO.deleteMany({});
+            for await (const connection of allConnections) {
+                const domain = `${connection.domain_name}.${connection.tld}`;
                 const { ghuser, ghrepo } = Helpers.extractGhUri(
-                    element.github_repo
+                    connection.github_repo
                 );
-                console.log({
-                    domain,
-                    ghuser,
-                    ghrepo,
-                });
-                const routes = element.router.routes;
 
-                // TODO: complete these implementations
+                const routes = connection.router.routes;
+
                 let RouteRecord: Map<string, Object> = new Map<
                     string,
                     Object
                 >();
+                const serverBaseUrl =
+                    rtrim(Helpers.SiteUrl(), "/") +
+                    `/serve?domain_name=${connection.domain_name}&tld=${connection.tld}&router_group={group}&path={path}`;
 
-                Object.keys(routes).forEach((key) => {
+                for await (const key of Object.keys(routes)) {
+                    const uri = Helpers.getGhRawFile(
+                        ghuser,
+                        ghrepo,
+                        connection.branch,
+                        routes[key]
+                    );
+                    const data = await Helpers.fetchSeoData(uri, serverBaseUrl);
                     RouteRecord.set(domain + key, {
-                        api_point: routes[key],
-                        data: "data",
+                        api_point:
+                            rtrim(Helpers.SiteUrl(), "/") +
+                            `/serve?domain_name=${connection.domain_name}&tld=${connection.tld}&router_group=routes&path=${key}`,
+                        data,
                     });
-                    // console.log(key, "=>", routes[key]);
-                });
-                console.log(RouteRecord);
-            });
+                }
+                console.log(
+                    "-----------------------------------------------------"
+                );
+                // TODO: Complete these implementation, the RouteRecord is not being saved to the database
+                const seo = await new SEO({
+                    domain,
+                    seo_data: RouteRecord.values(),
+                }).save();
+                if (!seo) {
+                    throw new Error("error.validation|Invalid SEO data");
+                }
+                round++;
+            }
+            return { message: "SEO data stored successfully", round };
         } catch (err: any) {
+            console.log(err.message);
             return Helpers.makeErrorResponse(error, { message: err.message });
         }
     }
