@@ -25,11 +25,16 @@ export default class SearchEngineService {
                 const routes = element.router.routes;
 
                 // TODO: complete these implementations
-                let RouteRecord: Record<string, Record<string, string>>;
+                let RouteRecord = new Map<string, Object>();
 
                 Object.keys(routes).forEach((key) => {
+                    RouteRecord.set(domain + key, {
+                        ar: routes[key],
+                        data: "data",
+                    });
                     // console.log(key, "=>", routes[key]);
                 });
+                console.log(RouteRecord);
             });
         } catch (err: any) {
             return Helpers.makeErrorResponse(error, { message: err.message });
