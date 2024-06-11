@@ -30,7 +30,12 @@ const app = new Elysia()
         ServeService: new ServeService(),
         SearchEngineService: new SearchEngineService(),
     })
-    .get("/", () => "Dude! You found me? Sigh...")
+    .get(
+        "/",
+        () =>
+            "Dude! You found me? Sigh... MongoDB Url: " +
+            process.env.MONGODB_URI
+    )
     .get("/available-tlds", () => TLDS)
     .guard(ConnectionRegisterValidator, (app) =>
         app.post(
