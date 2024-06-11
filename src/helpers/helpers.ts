@@ -79,7 +79,10 @@ export default class Helpers {
         }
     }
 
-    public static async fetchSeoData(url: string, baseUrl: string) {
+    public static async fetchSeoData(
+        url: string,
+        baseUrl: string
+    ): Promise<Map<string, string | Object> | void> {
         const seoData = new Map<string, string | Object>();
         try {
             const res = await Helpers.fetch(url, FetchType.RAW, baseUrl);
@@ -117,22 +120,29 @@ export default class Helpers {
                 if (metaRobotsRg) {
                     seoData.set("meta_robots", metaRobotsRg[1]);
                 }
-                // Extract all heading tags
+                // Extract all heading tags as an array
                 let headingsRg = res.match(/<h[1-6]>(.*?)<\/h[1-6]>/g);
                 if (headingsRg) {
                     seoData.set("headings", headingsRg);
                 }
             } else {
-                seoData.set("title", "404 not found");
+                seoData.set("title", "204 No Content");
             }
             return seoData;
         } catch (err: any) {
             if (err.message.startsWith("error.notfound")) {
-                seoData.set("title", "404 not found");
+                seoData.set("title", "204 No Content");
                 return seoData;
             } else {
                 throw new Error(err.message);
             }
+        }
+    }
+
+    public static shuffleArray(array: Array<any>): void {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
     }
 

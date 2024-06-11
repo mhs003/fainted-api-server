@@ -146,7 +146,34 @@ const app = new Elysia()
                 }) => await SearchEngineService.store_seo(body, error)
             )
     )
-    .get("/search", () => {})
+    .guard(
+        {
+            query: t.Object({
+                q: t.String({
+                    error({ errors }) {
+                        return {
+                            error: true,
+                            name: "error.validation",
+                            message: "Query is missing",
+                        };
+                    },
+                }),
+            }),
+        },
+        (app) =>
+            app.get(
+                "/search",
+                async ({
+                    SearchEngineService,
+                    query,
+                    error,
+                }: {
+                    SearchEngineService: SearchEngineService;
+                    query: { q: string };
+                    error: any;
+                }) => await SearchEngineService.search(query, error)
+            )
+    )
     .listen(3000);
 
 console.log(
